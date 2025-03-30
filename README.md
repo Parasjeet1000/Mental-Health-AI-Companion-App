@@ -27,7 +27,7 @@ Note: This application was tested with Govee Glide Lively RGBIC Wall Lights (H61
 ## 🛠️ Tech Stack
 
 - 🧠 LLM: [`mistral`](https://ollama.com/library/mistral) via [Ollama](https://ollama.com)
-- 💡 Hardware: [Govee Light Bar](https://www.govee.com/)
+- 💡 Hardware: [Govee Glide Lively RGBIC Wall Lights (H610A)](https://www.govee.com/)
 - 🔧 Backend: Python (Flask)
 - 🌐 Frontend: React + Tailwind CSS
 - 🎨 Real-time light control: UDP → Govee LAN API

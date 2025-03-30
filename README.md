@@ -39,26 +39,27 @@ Note: This application was tested with Govee Glide Lively RGBIC Wall Lights (H61
 ### 1. Install [Ollama](https://ollama.com/download) (Windows/macOS/Linux)
 
 then run the fowllowing commands:
-
+```bash
 ollama pull mistral
 ollama run mistral
+```
 
 ### 2. Run Backend (Flask + Python)
 
 run the following commands:
-
+```bash
 cd backend
 pip install -r requirements.txt
 python app.py
-
+```
 ### 2. Run Frontend (React)
 
 run the following commands:
-
+```bash
 cd frontend
 npm install
 npm run dev
-
+```
 
 
 

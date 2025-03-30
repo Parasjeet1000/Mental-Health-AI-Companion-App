@@ -1,6 +1,6 @@
 # 💬Mental Health AI Companion
 
-A real-time, agentic AI system that responds empathetically to user emotions using a local large language model (LLM), and enhances emotional support through dynamic lighting and breathing guidance.
+A real-time, agentic AI system that responds empathetically to user emotions using a local large language model (LLM), and enhances emotional support through dynamic lighting and breathing guidance. The application is able to chnage the light of compatible Govee lighting models based on the users current mood and provides breathing guidance through the lights.
 
 Note: This application was tested with Govee Glide Lively RGBIC Wall Lights (H610A)
 ---

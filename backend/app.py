@@ -9,8 +9,10 @@ from breathing_light import breathing_loop
 app = Flask(__name__)
 CORS(app)
 
+GROQ_API_KEY = ""
 # === Govee LAN Light Setup ===
 GOVEE_IP = "10.0.0.68"  # Your light bar's LAN IP
+#GOVEE_IP = "172.20.10.3"
 
 COLOR_MAP = {
     "blue": (0, 0, 255),
@@ -39,11 +41,15 @@ def set_light_color(ip, r, g, b):
     sock.sendto(json.dumps(msg).encode(), (ip, 4003))
     print(f"✅ Sent color command to {ip}: ({r}, {g}, {b})")
 
-# === SYSTEM PROMPT (same as yours)
+# === SYSTEM PROMPT
 SYSTEM_PROMPT = """
-You are a kind and emotionally intelligent mental health companion.
+You are a kind and supportive mental health companion.
+Speak gently, ask reflective questions, and encourage self-care
+and suggest small, helpful actions like journaling, taking a break, talking to someone, or reflecting on emotions.
 
-Your tone should always be gentle, supportive, and encouraging. Ask reflective questions, and suggest small, helpful actions like breathing, breaks, or journaling.
+You can suggest deep breathing only when it's truly necessary — not in every response.
+
+---
 
 When a user expresses:
 - Anxiety or overwhelm → respond with empathy and end the message with [SET_LIGHT:blue] or [SET_LIGHT:calm]
@@ -53,7 +59,7 @@ When a user expresses:
 - Mindfulness or groundedness → [SET_LIGHT:green]
 - Positivity or joy → [SET_LIGHT:gold], [SET_LIGHT:sunny], or [SET_LIGHT:mint]
 
-You must follow these rules:
+You must follow these rules exactly:
 
 1. Only include ONE [SET_LIGHT:color] tag per message, at the END of the message.
 2. The color must be exactly one of: blue, calm, warm, red, pink, green, gold, sunny, mint.
@@ -61,28 +67,31 @@ You must follow these rules:
 4. Never place the [SET_LIGHT:color] tag anywhere but the very end.
 5. Never invent or suggest a color outside the approved list.
 
-If the user is experiencing **intense emotional distress** (such as panic, extreme anxiety, or a breakdown), add a [BREATHING] tag — but only at the end.
+---
 
-6. Only include the [BREATHING] tag at the very end — AFTER the [SET_LIGHT:color] tag, and only if truly necessary.
-7. Do not include [BREATHING] if the user is mildly stressed or sad — only use it for panic or extreme tension.
-8. If both tags are needed, format them exactly like this:  
-   [SET_LIGHT:blue] [BREATHING]
+If the user is experiencing **intense emotional distress**, you MAY include a [BREATHING] tag — but ONLY in these specific situations:
+
+- Panic or spiraling thoughts  
+- Racing heart or shortness of breath  
+- Feeling physically overwhelmed or out of control  
+- Sudden breakdowns or emotional overload  
+- User directly asks for a calming exercise or help with breathing
+
+If the user sounds mildly stressed, annoyed, sad, angry, or just venting — **do NOT include [BREATHING]**.
+
+Also:  
+Do not casually suggest breathing exercises in every reply. Only bring up deep breathing if the user truly needs it or asks for it.
+
+If a [BREATHING] tag is included, it should appear at the very end — directly after the [SET_LIGHT:color] tag.
+
+Example format (if both are used):
+[SET_LIGHT:blue] [BREATHING]
 
 
-Before finishing the response:
-- Always ask yourself: "Is a light tag needed?"
-- If yes, include [SET_LIGHT:color] at the end.
-- Then ask: "Is a breathing exercise also needed?"
-- If yes, include [BREATHING] immediately after the light tag.
 
-This tag format must always be followed: [SET_LIGHT:color] [BREATHING]
 
-You are allowed to include both tags — but only if [BREATHING] is clearly needed.
-Do NOT skip the breathing tag in these cases.
-
-Example:
-That's really tough to carry. I'm here for you, and we can take it one step at a time together. Have you tried journaling or taking a few deep breaths? [SET_LIGHT:blue] [BREATHING]
 """
+
 
 @app.route('/chat', methods=['POST'])
 def chat():
@@ -91,20 +100,27 @@ def chat():
 
     prompt = f"[INST] {SYSTEM_PROMPT}\nUser: {user_message}\nAssistant: [/INST]"
 
-    # === 🔁 Use local Ollama instead of Hugging Face
     try:
         response = requests.post(
-            "http://localhost:11434/api/generate",
+            "https://api.groq.com/openai/v1/chat/completions",
+            headers={
+                "Authorization": f"Bearer {GROQ_API_KEY}",
+                "Content-Type": "application/json"
+            },
             json={
-                "model": "mistral",  # or "phi" or any other local model
-                "prompt": prompt,
-                "stream": False
+                "model": "llama-3.3-70b-versatile",  # You can also try "llama2-70b-chat"
+                "messages": [
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "user", "content": user_message}
+                ],
+                "temperature": 0.7
             }
         )
 
         if response.status_code == 200:
-            reply = response.json()["response"].strip()
+            reply = response.json()["choices"][0]["message"]["content"].strip()
             print(f"\n🤖 LLM Response:\n{reply}")
+
 
             # Check for [SET_LIGHT:color] tag
             match = re.search(r"set_light:(\w+)", reply, re.IGNORECASE)
@@ -119,16 +135,19 @@ def chat():
 
             return jsonify({"response": reply})
         else:
-            print("❌ Ollama API error:", response.status_code, response.text)
+            print("❌ Groq API error:", response.status_code, response.text)
             return jsonify({"response": "Sorry, the model is currently unavailable."})
     except Exception as e:
-        print("❌ Local LLM error:", e)
-        return jsonify({"response": "Something went wrong with the local model."})
+        print("❌ Groq API error:", e)
+        return jsonify({"response": "Something went wrong with the Groq model."})
+
 
 @app.route('/breathing', methods=['POST'])
 def start_breathing():
-    breathing_loop(GOVEE_IP)
+    from breathing_light import breathing_loop
+    breathing_loop(GOVEE_IP, cycles=3)
     return jsonify({"status": "Breathing sequence started"})
+
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -6,6 +6,7 @@ export default {
   theme: {
     extend: {
       animation: {
+        'pulse-slow': 'pulse 4s ease-in-out infinite',
         breath: 'breath 4s ease-in-out infinite',
       },
       keyframes: {

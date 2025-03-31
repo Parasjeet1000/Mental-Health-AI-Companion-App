@@ -26,7 +26,7 @@ Note: This application was tested with Govee Glide Lively RGBIC Wall Lights (H61
 
 ## 🛠️ Tech Stack
 
-- 🧠 LLM: [`mistral`](https://ollama.com/library/mistral) via [Ollama](https://ollama.com)
+- 🧠 LLM: [`llama3-8b-8192`](https://console.groq.com/) via Groq API
 - 💡 Hardware: [Govee Glide Lively RGBIC Wall Lights (H610A)](https://www.govee.com/)
 - 🔧 Backend: Python (Flask)
 - 🌐 Frontend: React + Tailwind CSS
@@ -36,13 +36,10 @@ Note: This application was tested with Govee Glide Lively RGBIC Wall Lights (H61
 
 ## 🚀 Getting Started
 
-### 1. Install [Ollama](https://ollama.com/download) (Windows/macOS/Linux)
+### 1. 🗝️ Set Up Your Groq API Key
 
-then run the fowllowing commands:
-```bash
-ollama pull mistral
-ollama run mistral
-```
+- Sign up at [https://console.groq.com](https://console.groq.com)
+- Generate an API key and place it on the line " GROQ_API_KEY = "" " in app.py in the backend folder:
 
 ### 2. Run Backend (Flask + Python)
 

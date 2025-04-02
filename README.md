@@ -11,7 +11,6 @@ Note: This application was tested with Govee Glide Lively RGBIC Wall Lights (H61
 - 🎨 Mood-based light color changes via **Govee LAN API**
 - 💨 AI-triggered breathing exercises with visual and ambient feedback
 - 🌈 UI dynamically adapts to emotional tone and lighting
-- 🔌 Runs fully **offline** (no Hugging Face/OpenAI tokens needed)
 
 ---
 
